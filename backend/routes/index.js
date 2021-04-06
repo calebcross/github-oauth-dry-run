@@ -8,9 +8,6 @@ router.get("/login/failed", (req, res, next) => {
   res.status(401).send("Could not authenticate with OAuth provider");
 });
 
-/**
- *
- */
 router.get("/login", (req, res) => {
   authRedirect = req.query.from;
   // start authenticating
