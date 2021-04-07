@@ -1,16 +1,14 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Route, Redirect } from "react-router-dom";
 import axios from "axios";
 import { API_URL } from "../App";
 
-class PrivateRoute extends React.Component {
-  state = {
-    isAuthenticating: true,
-    isAuthenticated: false,
-    user: null,
-  };
+const PrivateRoute = ({ component: Component, ...rest }) => {
+  const [isAuthenticating, setAuthenticating] = useState(true);
+  const [isAuthenticated, setAuthenticated] = useState(false);
+  const [user, setUser] = useState(null);
 
-  componentDidMount() {
+  useEffect(() => {
     // Send an auth check request to the server.
     // Don't forget forget to set axios to send requests
     // withCredentials; it allows for cookies to be passed
@@ -19,45 +17,42 @@ class PrivateRoute extends React.Component {
       .get(`${API_URL}/auth/check`, { withCredentials: true })
       .then((res) => {
         console.log("check passed");
-        this.setState({
-          isAuthenticating: false,
-          isAuthenticated: true,
-          user: res.data,
-        });
+        // the order absolutely matters here. Don't forget that
+        // every time a state gets changed, it rerenders.
+        setUser(res.data);
+        setAuthenticated(true);
+        setAuthenticating(false);
       })
       .catch(() => {
         console.log("check failed");
-        this.setState({
-          isAuthenticating: false,
-          isAuthenticated: false,
-        });
+        setAuthenticating(false);
+        setAuthenticated(false);
       });
-  }
+  }, []);
 
-  // https://ui.dev/react-router-v5-protected-routes-authentication/
-  render() {
-    const { component: Component, ...rest } = this.props;
-    return (
-      <Route
-        {...rest}
-        render={(props) => {
-          // While authenticating, don't show anything
-          // alternatively this could be a loading indicator
-          if (this.state.isAuthenticating) return null;
-          return this.state.isAuthenticated ? (
-            <Component user={this.state.user} {...props} />
-          ) : (
-            <Redirect
-              to={{
-                pathname: "/login",
-                state: { from: props.location },
-              }}
-            />
-          );
-        }}
-      />
-    );
-  }
-}
+  return (
+    <Route
+      {...rest}
+      render={(props) => {
+        console.log("route render props", props);
+        console.log(isAuthenticating);
+        console.log(isAuthenticated);
+        // While authenticating, don't show anything
+        // alternatively this could be a loading indicator
+        if (isAuthenticating) return null;
+        return isAuthenticated ? (
+          <Component user={user} {...rest} />
+        ) : (
+          <Redirect
+            to={{
+              pathname: "/login",
+              state: { from: props.location },
+            }}
+          />
+        );
+      }}
+    />
+  );
+};
 
 export default PrivateRoute;
