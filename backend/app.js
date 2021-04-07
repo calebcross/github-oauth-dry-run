@@ -15,7 +15,7 @@ app.use(helmet());
 // morgan logger, network info in node console
 app.use(logger("dev"));
 
-// enable cors
+// enable cors to accept requests for our client
 app.use(
   cors({
     origin: true,
@@ -23,7 +23,15 @@ app.use(
   })
 );
 
-// configure session middleware
+// configure session middleware.
+// session is from line 3; express-session makes it
+// so session data is not saved on the cookie itself;
+// the session data is stored serverside. The cookie
+// only holds the session id.
+
+// Make sure this line is run before passport.session()
+// to ensure the login session is restored in the
+// correct order.
 app.use(
   session({
     secret: process.env.SESSION_SECRET,
@@ -35,7 +43,9 @@ app.use(
 // initalize passport
 app.use(passport.initialize());
 
-// deserialize cookie from the browser
+// this middleware alters the request object.
+// more detail here:
+// ttps://stackoverflow.com/questions/22052258/what-does-passport-session-middleware-do
 app.use(passport.session());
 
 app.use("/", routes);

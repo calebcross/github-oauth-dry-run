@@ -4,6 +4,14 @@ const passport = require("../config");
 
 let authRedirect = "/";
 
+// I'm adding an endpoint called /sessions just for teaching
+// purposes so you can see the session data held on server side.
+// Don't include this in your final app if you use this as
+// a template.
+router.get("/sessions", (req, res) => {
+  res.send(req.session);
+});
+
 router.get("/login/failed", (req, res, next) => {
   res.status(401).send("Could not authenticate with OAuth provider");
 });
