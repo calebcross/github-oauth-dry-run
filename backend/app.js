@@ -4,7 +4,7 @@ const session = require("express-session");
 const cors = require("cors");
 const helmet = require("helmet");
 const logger = require("morgan");
-const passport = require("./config");
+const passport = require("./config/passport");
 const routes = require("./routes");
 
 app.use(express.json());

@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const passport = require("../config");
+const passport = require("../config/passport");
 
 let authRedirect = "/";
 
